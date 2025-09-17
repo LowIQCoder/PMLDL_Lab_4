@@ -3,15 +3,9 @@ name: Advanced Workflow
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - 'models/**'
-      - 'backend/**'
 
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'models/**'
-      - 'backend/**'
 
   workflow_dispatch:
 
@@ -66,7 +60,7 @@ jobs:
       - uses: actions/setup-node@v4
 
       - name: Generate Report
-        run: | 
+        run: |
           precision=$(jq '.precision' part2/models/best/metadata.json)
           recall=$(jq '.recall' part2/models/best/metadata.json)
           f1=$(jq '.f1' part2/models/best/metadata.json)
@@ -75,32 +69,33 @@ jobs:
           mkdir -p part2/reports
           report_path=part2/reports/best_model_report.md
 
-          echo "# Best Model Report" > "$report_path"
-          echo "" >> "$report_path"
-          echo "## Model Info" >> "$report_path"
-          echo "" >> "$report_path"
-          echo "- **Model Type**: $model_type" >> "$report_path"
+          {
+            echo "# Best Model Report"
+            echo
+            echo "## Model Info"
+            echo
+            echo "- **Model Type**: $model_type"
+            echo "- **Parameters**:"
+            jq -r '.params | to_entries[] | "  - \(.key): \(.value)"' part2/models/best/metadata.json
+            echo
+            echo "## Metrics"
+            echo
+            echo "| Metric    | Value |"
+            echo "|-----------|-------|"
+            echo "| Precision | $precision |"
+            echo "| Recall    | $recall |"
+            echo "| F1 Score  | $f1 |"
+            echo
+            echo "## Images"
+            echo
+            for img in part2/models/best/*.png; do
+              rel_path=$(realpath --relative-to=part2/reports "$img")
+              echo "![Image]($rel_path)"
+            done
+          } > "$report_path"
 
-          echo "- **Parameters**:" >> "$report_path"
-          jq -r '.params | to_entries[] | "  - \(.key): \(.value)"' part2/models/best/metadata.json >> "$report_path"
-          echo "" >> "$report_path"
-
-          echo "## Metrics" >> "$report_path"
-          echo "" >> "$report_path"
-          # Possible error
-          echo "| Metric    | Value |" >> "$report_path"
-          echo "|-----------|-------|" >> "$report_path"
-          echo "| Precision | $precision |" >> "$report_path"
-          echo "| Recall    | $recall |" >> "$report_path"
-          echo "| F1 Score  | $f1 |" >> "$report_path"
-          echo "" >> "$report_path"
-
-          echo "## Images" >> "$report_path"
-          echo "" >> "$report_path"
-          for img in part2/models/best/*.png; do
-            rel_path=$(realpath --relative-to=reports "$img")
-            echo "![Image]($rel_path)" >> "$report_path"
-          done
+          echo "--- Generated report content ---"
+          cat "$report_path"
 
       - name: Commit and push changes
         env:
@@ -109,7 +104,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+          git status
           git add part2/reports/best_model_report.md
-          # Possible error
-          git commit -m "Update best model report"
+          git commit -m "Update best model report" || echo "No changes to commit"
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
