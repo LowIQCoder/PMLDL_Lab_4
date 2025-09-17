@@ -17,4 +17,4 @@
 
 ## Images
 
-![Image](../part2/models/best/confusion_matrices.png)
+![Image](../models/best/confusion_matrices.png)
