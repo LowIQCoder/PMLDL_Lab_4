@@ -104,6 +104,5 @@ plt.savefig("model_results.png", dpi=120)
 with open("metrics.txt", "w") as outfile:
     outfile.write(f"\nAccuracy = {round(accuracy, 2)}, F1 Score = {round(f1, 2)}\n\n")
    
-
 # saving the pipeline
 sio.dump(complete_pipe, "bank_pipeline.skops")
