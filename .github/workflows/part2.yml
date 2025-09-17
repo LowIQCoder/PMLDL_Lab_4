@@ -22,8 +22,8 @@ jobs:
 
       - name: Run Backend and Test Predict Batch
         run: |
-          cd part2
-          python backend/backend.py &
+          cd part2/backend
+          python backend.py &
           BACKEND_PID=$!
 
           for i in {1..20}; do
