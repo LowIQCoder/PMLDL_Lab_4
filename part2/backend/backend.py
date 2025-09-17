@@ -9,7 +9,7 @@ import pandas as pd
 
 app = FastAPI()
 # Possible error
-model_path = "my_models" + "/best_model_pipeline.joblib"
+model_path = "models" + "/best_model_pipeline.joblib"
 model = joblib.load(model_path)
 
 @app.get("/health", tags=['health'])  
@@ -20,8 +20,9 @@ def health_check():
 def predict(sample: SampleSchema):
     # Possible error
     df = pd.DataFrame([dict(sample)])
-    return {"prediction": 0}
-  
+    prediction = model.predict(df)
+    return {"prediction": prediction[0]}
+
 @app.post("/predict_batch", tags=['predict'])
 def predict_batch(file: UploadFile):
     if not file.filename.endswith('.csv'):
