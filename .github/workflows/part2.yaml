@@ -2,9 +2,12 @@ name: Advanced Workflow
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'models/**'
+      - 'backend/**'
   pull_request:
     branches: [ "main" ]
-  paths:
+    paths:
       - 'models/**'
       - 'backend/**'
   workflow_dispatch:
